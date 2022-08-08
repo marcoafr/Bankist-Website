@@ -14,6 +14,7 @@ const tabsContainer = document.querySelector('.operations__tab-container');
 const tabsContent = document.querySelectorAll('.operations__content');
 const nav = document.querySelector('.nav');
 const header = document.querySelector('.header');
+const allSections = document.querySelectorAll('.section');
 
 const openModal = function (e) {
   e.preventDefault(); // So the page doesn't go to the top
@@ -103,6 +104,12 @@ document.querySelector('.nav__links').addEventListener('click', function (e) {
   //console.log(e.target);
 
   // Matching strategy (the element that originated the function MUST contain the nav__link class, otherwise, scrolling shouldn't happen!)
+
+  // Only adding this if statement, so it doesn't return errors to the console when pressing Open account
+  if (e.target.classList.contains('btn--show-modal')) {
+    return;
+  }
+
   if (e.target.classList.contains('nav__link')) {
     // Creating a varible to get just the href attribute (which contains the #section--number) and that takes to the clicked section! We write this to get each of the buttons' href.
     const id = e.target.getAttribute('href');
@@ -351,7 +358,7 @@ const navHeight = nav.getBoundingClientRect().height;
 // Creating the function of what is going to happen when it's triggered:
 const stickyNav = function (entries) {
   const [entry] = entries; // this means the same as const entry = entries[0]
-  console.log(entry); // each time the header 'leaves' the viewport, it logs this to the console
+  // console.log(entry); // each time the header 'leaves' the viewport, it logs this to the console
 
   if (!entry.isIntersecting) {
     // If the header is not intersecting the viewport (not visible), then we add sticky class.
@@ -369,3 +376,40 @@ const headerObserver = new IntersectionObserver(stickyNav, {
   rootMargin: `-${navHeight}px`, // This means a box of 90px (navHeight) that will be applied outside of our target element (header). It's like the header went 90px less. This is just a visual margin!
 });
 headerObserver.observe(header);
+
+// Revealing Elements (Sections 1, 2, 3 and 4) on Scroll
+const revealSection = function (entries, observer) {
+  const [entry] = entries; //same as const entry = entries[0];
+  //console.log(entry, entry.target); //Just to check each time it triggers
+
+  // We need to know exactly what target we are reaching, to make its section appear
+
+  /*
+  // Option 1
+  if (entry.isIntersecting) {
+    // adding this if condition, because, for some reason, an entry always triggers as soon as the page loads, but with the isIntersecting set to false. So I use this as an alternative to make it really work
+    entry.target.classList.remove('section--hidden');
+  }
+  */
+
+  // Option 2
+  if (!entry.isIntersecting) {
+    return;
+  }
+  // adding this if condition, because, for some reason, an entry always triggers as soon as the page loads, but with the isIntersecting set to false. So I use this as an alternative to make it really work
+  entry.target.classList.remove('section--hidden');
+
+  // After each of the sections has been observed, we don't need the observer to 'work' anymore, so we can unobserve. That means that after the fisrt scroll down, it doesn't triggers anymore.
+  observer.unobserve(entry.target);
+};
+
+const sectionObserver = new IntersectionObserver(revealSection, {
+  root: null, // the root will be the whole viewport
+  threshold: 0.1, //When it reaches 10% of the section, it will appear
+});
+
+// Looping over the 4 classes to launch the IntersectionObserver and also to apply the section--hidden class to each section
+allSections.forEach(function (section) {
+  sectionObserver.observe(section);
+  section.classList.add('section--hidden');
+});
