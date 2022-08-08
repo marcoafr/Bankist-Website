@@ -12,6 +12,7 @@ const section1 = document.querySelector('#section--1');
 const tabs = document.querySelectorAll('.operations__tab');
 const tabsContainer = document.querySelector('.operations__tab-container');
 const tabsContent = document.querySelectorAll('.operations__content');
+const nav = document.querySelector('.nav');
 
 const openModal = function (e) {
   e.preventDefault(); // So the page doesn't go to the top
@@ -148,3 +149,146 @@ tabsContainer.addEventListener('click', function (el) {
     .querySelector(`.operations__content--${clicked.dataset.tab}`)
     .classList.add('operations__content--active'); // Remember: IT IS A DATASET ATTRIBUTE!, SO WE JUST NEED TO WRITE .dataset.tab !!!!!!!!!!
 });
+
+// Menu fading animation (Navigation links), using event delegation
+
+/*
+// OPTION 1: With two different Functions
+// The common parent element to the logo and nav links: '.nav' -> stored in the nav variable
+// MOUSEOVER -> when the cursor is moved onto the element
+nav.addEventListener('mouseover', function (e) {
+  // Matching strategy (.nav__link)
+  if (e.target.classList.contains('nav__link')) {
+    //There's no need of the .closest, because there are no other elements within the links that we could hover into
+
+    // Creating a variable for the element that we are working with
+    const link = e.target;
+
+    // Selecting the sibling elements to the element we are working with (going to the parent and getting its children)
+    // Using the closest method, because we would have to move up 2 parents otherwise:
+    const siblings = link.closest('.nav').querySelectorAll('.nav__link');
+    const logo = link.closest('.nav').querySelector('img');
+
+    // Now we are going through all the links (unless it's the actual link) and setting their opacity to 0.5
+    siblings.forEach(function (el) {
+      if (el !== link) {
+        el.style.opacity = 0.5;
+      }
+    });
+
+    //Same for the logo
+    logo.style.opacity = 0.5;
+  }
+});
+
+// MOUSEOUT -> when the cursor is moved out of the element
+nav.addEventListener('mouseout', function (e) {
+  // Matching strategy (.nav__link)
+  if (e.target.classList.contains('nav__link')) {
+    //There's no need of the .closest, because there are no other elements within the links that we could hover into
+
+    // Creating a variable for the element that we are working with
+    const link = e.target;
+
+    // Selecting the sibling elements to the element we are working with (going to the parent and getting its children)
+    // Using the closest method, because we would have to move up 2 parents otherwise:
+    const siblings = link.closest('.nav').querySelectorAll('.nav__link');
+    const logo = link.closest('.nav').querySelector('img');
+
+    // Now we are going through all the links (unless it's the actual link) and setting their opacity to 0.5
+    siblings.forEach(function (el) {
+      if (el !== link) {
+        el.style.opacity = 1;
+      }
+    });
+
+    //Same for the logo
+    logo.style.opacity = 1;
+  }
+});
+*/
+
+// OPTION 2: Refactoring option 1 (more clean coding):
+// The only difference would be in the opacity (one is 0.5 and the other is 1), so we create a variable for that (opacity)
+
+const handleHover = function (e, opacity) {
+  // The common parent element to the logo and nav links: '.nav' -> stored in the nav variable
+  // Matching strategy (.nav__link)
+  if (e.target.classList.contains('nav__link')) {
+    //There's no need of the .closest, because there are no other elements within the links that we could hover into
+
+    // Creating a variable for the element that we are working with
+    const link = e.target;
+
+    // Selecting the sibling elements to the element we are working with (going to the parent and getting its children)
+    // Using the closest method, because we would have to move up 2 parents otherwise:
+    const siblings = link.closest('.nav').querySelectorAll('.nav__link');
+    const logo = link.closest('.nav').querySelector('img');
+
+    // Now we are going through all the links (unless it's the actual link) and setting their opacity to 0.5
+    siblings.forEach(function (el) {
+      if (el !== link) {
+        el.style.opacity = opacity;
+      }
+    });
+
+    //Same for the logo
+    logo.style.opacity = opacity;
+  }
+};
+
+// (With "anonymous" callback functions)
+// We need to set as callback functions, because we need to specify the opacity in each case!
+// MOUSEOVER -> when the cursor is moved onto the element
+nav.addEventListener('mouseover', function (e) {
+  handleHover(e, 0.5); //Opacity 0.5
+});
+
+// MOUSEOUT -> when the cursor is moved out of the element
+nav.addEventListener('mouseout', function (e) {
+  handleHover(e, 1); //Opacity 1
+});
+
+/*
+// OPTION 3 Refactoring option 1 (also clean coding) (With direct arguments as callback functions, using the BIND METHOD)
+// The only difference would be in the opacity (one is 0.5 and the other is 1), so we create a variable for that (opacity)
+
+const handleHover = function (e) {
+  // The common parent element to the logo and nav links: '.nav' -> stored in the nav variable
+  // Matching strategy (.nav__link)
+  if (e.target.classList.contains('nav__link')) {
+    //There's no need of the .closest, because there are no other elements within the links that we could hover into
+
+    // Creating a variable for the element that we are working with
+    const link = e.target;
+
+    // Selecting the sibling elements to the element we are working with (going to the parent and getting its children)
+    // Using the closest method, because we would have to move up 2 parents otherwise:
+    const siblings = link.closest('.nav').querySelectorAll('.nav__link');
+    const logo = link.closest('.nav').querySelector('img');
+
+    // Now we are going through all the links (unless it's the actual link) and setting their opacity to 0.5
+    siblings.forEach(function (el) {
+      if (el !== link) {
+        el.style.opacity = this;
+      }
+    });
+
+    //Same for the logo
+    logo.style.opacity = this;
+  }
+};
+
+// Passing "argument" into handler
+// MOUSEOVER -> when the cursor is moved onto the element
+nav.addEventListener(
+  'mouseover',
+  handleHover.bind(0.5) //Opacity 0.5
+);
+
+// MOUSEOUT -> when the cursor is moved out of the element
+nav.addEventListener(
+  'mouseout',
+  handleHover.bind(1) //Opacity 1
+);
+*/
