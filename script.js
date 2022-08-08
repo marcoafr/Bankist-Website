@@ -9,6 +9,9 @@ const btnCloseModal = document.querySelector('.btn--close-modal');
 const btnsOpenModal = document.querySelectorAll('.btn--show-modal');
 const btnScrollTo = document.querySelector('.btn--scroll-to');
 const section1 = document.querySelector('#section--1');
+const tabs = document.querySelectorAll('.operations__tab');
+const tabsContainer = document.querySelector('.operations__tab-container');
+const tabsContent = document.querySelectorAll('.operations__content');
 
 const openModal = function (e) {
   e.preventDefault(); // So the page doesn't go to the top
@@ -97,7 +100,7 @@ document.querySelector('.nav__links').addEventListener('click', function (e) {
   // e.target -> check where the event was originated!
   //console.log(e.target);
 
-  // Matching strategy (the element that oriniated the function MUST contain the nav__link class, otherwise, scrolling shouldn't happen!)
+  // Matching strategy (the element that originated the function MUST contain the nav__link class, otherwise, scrolling shouldn't happen!)
   if (e.target.classList.contains('nav__link')) {
     // Creating a varible to get just the href attribute (which contains the #section--number) and that takes to the clicked section! We write this to get each of the buttons' href.
     const id = e.target.getAttribute('href');
@@ -105,4 +108,43 @@ document.querySelector('.nav__links').addEventListener('click', function (e) {
     // By doing this, we get the id exactly as it's on the href (HTML), and then we can easily scroll to this part! (ids are #section--1, #section--2 and #section--3)
     document.querySelector(id).scrollIntoView({ behavior: 'smooth' });
   }
+});
+
+// Adding a Tabbed Component on Section 2
+// Using EVENT DELEGATION (attaching the event handler to the parent element - tabsContainer)
+tabsContainer.addEventListener('click', function (el) {
+  // ACTIVATE TAB
+
+  //Matching strategy -> We need to search for the closest '.operations__tab', because there is a span within the button elements!
+  const clicked = el.target.closest('.operations__tab');
+
+  /*
+  // Option 1
+  // We must add the active to the clicked element. But only if a 'real button' is clicked. If we only click on the parent element, then nothing should happen
+  if (el.target.classList.contains('operations__tab')) {
+    clicked.classList.add('operations__tab--active');
+  }
+  */
+
+  // Option 2
+  //Guard Clause (If there's no clicked variable, then it returns the function immediately)
+  if (!clicked) return;
+
+  // REMOVE: before adding the active class, the active class must be removed from all the tabs;
+  tabs.forEach(tab => tab.classList.remove('operations__tab--active'));
+  // ADD: now adding aftwrwards in one of them (in the clicked one)
+  clicked.classList.add('operations__tab--active');
+
+  // ACTIVATE CONTENT AREA (the information is on the data-tab attribute, either 1, 2 or 3)
+  //console.log(clicked.dataset.tab); // It gives us the number of the data-set attribute of the clicked button. Remember: IT IS A DATASET ATTRIBUTE!, SO WE JUST NEED TO WRITE .dataset.tab !!!!!!!!!!
+
+  // REMOVE: before adding the active class, the active class must be removed from all the contents;
+  tabsContent.forEach(content =>
+    content.classList.remove('operations__content--active')
+  );
+
+  // ADD: now adding aftwrwards in one of them (in the clicked one)
+  document
+    .querySelector(`.operations__content--${clicked.dataset.tab}`)
+    .classList.add('operations__content--active'); // Remember: IT IS A DATASET ATTRIBUTE!, SO WE JUST NEED TO WRITE .dataset.tab !!!!!!!!!!
 });
