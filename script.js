@@ -413,3 +413,40 @@ allSections.forEach(function (section) {
   sectionObserver.observe(section);
   section.classList.add('section--hidden');
 });
+
+// Lazy Loading Images (a strategy to make the page load faster)
+const imgTargets = document.querySelectorAll('img[data-src]'); // This means only the elements that have the data-src attribute
+// console.log(imgTargets); // Just to check that we indeed only get the 3 images on the second section
+
+// Creating the function to what will happen the it's triggered
+const loadImg = function (entries, observer) {
+  const [entry] = entries; // Since we have only one threshold, we only need one entry
+  // console.log(entry);
+
+  // Option 1
+  if (!entry.isIntersecting) {
+    return;
+  }
+  // adding this if condition, because, for some reason, an entry always triggers as soon as the page loads, but with the isIntersecting set to false. So I use this as an alternative to make it really work
+
+  // Replace the src attribute to the data-src attribute
+  entry.target.src = entry.target.dataset.src;
+
+  // The LOAD EVENT (for image changes) -> We can't just remove the lazy-img class right away! Because, if so, it would remove the filter and then load the image, so there would be some time with the image in low resolution. With this event handler, it waits until it really loads to 'unblur'
+  entry.target.addEventListener('load', function () {
+    entry.target.classList.remove('lazy-img');
+  });
+
+  // After each of the sections has been observed, we don't need the observer to 'work' anymore, so we can unobserve. That means that after the fisrt scroll down, it doesn't triggers anymore.
+  observer.unobserve(entry.target);
+};
+
+// Creating the IntersectionObserver with the loadImg
+const imgObserver = new IntersectionObserver(loadImg, {
+  root: null, // Interacting with the window
+  threshold: 0, // When it reaches the top of the image
+  rootMargin: '-200px', // starts loading when reaching -200px from the image
+});
+
+// Creating the forEach, because there are 3 different images that are lazy loaded
+imgTargets.forEach(image => imgObserver.observe(image));
