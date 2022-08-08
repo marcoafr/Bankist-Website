@@ -13,6 +13,7 @@ const tabs = document.querySelectorAll('.operations__tab');
 const tabsContainer = document.querySelector('.operations__tab-container');
 const tabsContent = document.querySelectorAll('.operations__content');
 const nav = document.querySelector('.nav');
+const header = document.querySelector('.header');
 
 const openModal = function (e) {
   e.preventDefault(); // So the page doesn't go to the top
@@ -292,3 +293,79 @@ nav.addEventListener(
   handleHover.bind(1) //Opacity 1
 );
 */
+
+// Implementing Sticky Navigation
+/*
+// OPTION 1 (Should be avoided, because it fires a lot of times!)
+// window scrolling event (scroll event) -> each time we scroll our page, the event will be fired!
+
+// Op1.1) Creating a variable, in case we wanted to stick the top nav bar when scrolling reaches section 1;
+const initialCoordinates1 = section1.getBoundingClientRect(); // getting the top value of section 1
+//console.log(initialCoordinates);
+
+// Op1.2) Creating a variable, in case we wanted to stick the top nav bar when scrolling reaches the bottom of nav bar;
+const initialCoordinates2 = nav.getBoundingClientRect(); // getting the bottom value of nav bar
+
+window.addEventListener('scroll', function () {
+  // Getting the current scroll position
+  // console.log(window.scrollY); //each time the we scroll, it logs the Y position to the top of the page
+
+  // Option 1.1 - to stick the top navigation when the scrolling reaches section 1
+  if (window.scrollY > initialCoordinates1.top) {
+    nav.classList.add('sticky');
+  } else {
+    nav.classList.remove('sticky');
+  }
+
+  
+  // // Option 1.2 - to stick as soon as the scrolling reaches the bottom of nav bar!
+  // if (window.scrollY > initialCoordinates2.bottom) {
+  //   nav.classList.add('sticky');
+  // } else {
+  //   nav.classList.remove('sticky');
+  // }
+});
+*/
+
+// OPTION 2 (STICKY NAVIGATION WITH INTERSECTION OBSERVER API)
+/*
+// Sticky Navigation Explanation (NOT USED)
+const obsCallback = function (entries, observer) {
+  entries.forEach(entry => console.log(entry));
+};
+const obsOptions = {
+  root: null,
+  threshold: [0, 0.1], // This is the percentage of how much is visible on the viewport!
+};
+
+const observer = new IntersectionObserver(obsCallback, obsOptions);
+observer.observe(section1);
+
+// Whenever section1 (from observer.observe), intersects the root (in this case, null, so all the viewport) at 10% (threshold) we can have multiple THRESHOLDS, then the callback function will get called, it doesn't matter if scrolling UP or DOWN.
+*/
+
+// Sticky Navigation (With INTERSECTION OBSERVER API)
+// Getting the size of the Navigation Bar Size (Height)
+const navHeight = nav.getBoundingClientRect().height;
+
+// Creating the function of what is going to happen when it's triggered:
+const stickyNav = function (entries) {
+  const [entry] = entries; // this means the same as const entry = entries[0]
+  console.log(entry); // each time the header 'leaves' the viewport, it logs this to the console
+
+  if (!entry.isIntersecting) {
+    // If the header is not intersecting the viewport (not visible), then we add sticky class.
+    nav.classList.add('sticky');
+  } else {
+    // If the header is intersecting the viewport (visible), then we remove sticky class.
+    nav.classList.remove('sticky');
+  }
+};
+
+// We are going to observe the header element. When we cannot see it anymore, we trigger the function
+const headerObserver = new IntersectionObserver(stickyNav, {
+  root: null, // Because we are interested in the viewport
+  threshold: 0, // When 0% of the header is visible, then we want something to happen
+  rootMargin: `-${navHeight}px`, // This means a box of 90px (navHeight) that will be applied outside of our target element (header). It's like the header went 90px less. This is just a visual margin!
+});
+headerObserver.observe(header);

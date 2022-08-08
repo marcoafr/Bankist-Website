@@ -127,7 +127,18 @@ img {
 /* nav and stickly class at the same time */
 .nav.sticky {
   position: fixed;
-  background-color: rgba(255, 255, 255, 0.95);
+  background-color: #f3f3f3;
+  opacity: 0.92;
+  animation: sticky-animation 0.5s;
+}
+
+@keyframes sticky-animation {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
 }
 
 .nav__logo {
