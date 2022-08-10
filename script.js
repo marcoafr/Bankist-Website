@@ -15,6 +15,11 @@ const tabsContent = document.querySelectorAll('.operations__content');
 const nav = document.querySelector('.nav');
 const header = document.querySelector('.header');
 const allSections = document.querySelectorAll('.section');
+const slides = document.querySelectorAll('.slide');
+const slider = document.querySelector('.slider');
+const btnLeft = document.querySelector('.slider__btn--left');
+const btnRight = document.querySelector('.slider__btn--right');
+const dotContainer = document.querySelector('.dots');
 
 const openModal = function (e) {
   e.preventDefault(); // So the page doesn't go to the top
@@ -450,3 +455,132 @@ const imgObserver = new IntersectionObserver(loadImg, {
 
 // Creating the forEach, because there are 3 different images that are lazy loaded
 imgTargets.forEach(image => imgObserver.observe(image));
+
+// Section 3 Slider
+/*
+slider.style.transform = 'scale(0.2)'; //Just to make it 'more visible'
+slider.style.overflow = 'visible'; //It's set to hidden in CSS, so to make all of them visible visible
+*/
+
+// Creating a function so we don't pollute the global workspace
+const sliderFunction = function () {
+  // Creating a goToSlide function (stored in a variable) -> Refactoring
+  const goToSlide = function (whichSlide) {
+    slides.forEach(
+      (slide, index) =>
+        (slide.style.transform = `translateX(${100 * (index - whichSlide)}%)`)
+    );
+  };
+
+  // Creating a variable for the currentSlide and for the Max amount of slides
+  let currentSlide = 0;
+  const maxSlide = slides.length; //the length of the slides NodeList
+
+  // Adding event listener to the Right Button: NEXT SLIDE
+  // Creating a function (to make it more compact)
+  const nextSlide = function () {
+    // Checking if the currentSlide is actually the maxSlide:
+    if (currentSlide === maxSlide - 1) {
+      currentSlide = 0;
+    } else {
+      // If not, we add up 1 to the current Slide variable:
+      currentSlide++;
+    }
+
+    // We want to loop over the slides and make them: -100%, 0%, 100%, 200%, and then -200%, -100%, 0%, 100%...
+    goToSlide(currentSlide);
+    activateDot(currentSlide);
+  };
+
+  // Adding event listener to the Left Button: PREVIOUS SLIDE
+  // Creating a function (to make it more compact)
+  const previousSlide = function () {
+    // Checking if the currentSlide is actually the first one:
+    if (currentSlide === 0) {
+      currentSlide = maxSlide - 1;
+    } else {
+      // If not, we remove 1 to the currentSlide variable:
+      currentSlide--;
+    }
+
+    // We want to loop over the slides and make them: -300%, -200%, -100%, 0%
+    goToSlide(currentSlide);
+    activateDot(currentSlide);
+  };
+
+  // Establishing the .addEventListener to the RIGHT BUTTON
+  btnRight.addEventListener('click', nextSlide);
+
+  // Establishing the .addEventListener to the LEFT BUTTON
+  btnLeft.addEventListener('click', previousSlide);
+
+  // Establishing the events for the right and left keys on the keyboard
+  document.addEventListener('keydown', function (e) {
+    // console.log(e); // just to figure out which is the right arrow key
+
+    // Option 1 -> Using SHORT CIRCUITING
+    e.key === 'ArrowRight' && nextSlide();
+    e.key === 'ArrowLeft' && previousSlide();
+
+    /*
+    // Option 2 -> Using if-else
+    if (e.key === 'ArrowRight') nextSlide();
+    if (e.key === 'ArrowLeft') previousSlide();
+    */
+  });
+
+  // Adding up the dots on the end of the slides (NOTICE: There's already the <div> called dots and the dotContainer element created on the JS)
+  const createDots = function () {
+    // Creating one button for each amount of slides that there is
+    slides.forEach((_, index) =>
+      dotContainer.insertAdjacentHTML(
+        'beforeend',
+        `<button class= "dots__dot" data-slide="${index}"></button>`
+      )
+    );
+  };
+
+  // Now, we will add an Event Handler to the dots' common parent (EVENT DELEGATION)
+  dotContainer.addEventListener('click', function (e) {
+    if (e.target.classList.contains('dots__dot')) {
+      // If we press any of the dots (and only then), this should happen!
+      // console.log('DOT');
+      const slide = e.target.dataset.slide; // This will get the number of the dot, as well as the number of the slide!
+
+      // We could also use destructuring with the above to get the same variable, because both are called 'slide'
+      //const {slide} = e.target.dataset
+
+      // Now that we have the slide number, we can call the goToSlide function!
+      goToSlide(slide);
+      activateDot(slide);
+    }
+  });
+
+  // Creating a function where the activeSlide will also put the activeDot class to the dot that represents it!
+  const activateDot = function (slide) {
+    // First of all, remove the active class to all of the dots
+    const dots = document.querySelectorAll('.dots__dot');
+    dots.forEach(function (dot) {
+      dot.classList.remove('dots__dot--active');
+    });
+
+    //Then adding the class just to the one that we are interested in
+    document
+      .querySelector(`.dots__dot[data-slide="${slide}"]`) //This querySelector will choose the element which the data-slide attribute is equal to the slide number
+      .classList.add('dots__dot--active');
+  };
+
+  // Initial Functions:
+  const init = function () {
+    // Establishing the translateX for each of the 4 slides (from 0 to 300%) in the beginning
+    goToSlide(0); // 1st sl: translateX = 0% / 2nd sl: TranslateX = 100% / 3rd sl: TranslateX = 200%/ 4th sl: TranslateX = 300%
+    // Calling createDots function as soon as the page is loaded.
+    createDots();
+    // When the page loads, we need to activateDot(0)
+    activateDot(0);
+  };
+
+  // Calling init when the page loads
+  init();
+};
+sliderFunction();
