@@ -584,3 +584,18 @@ const sliderFunction = function () {
   init();
 };
 sliderFunction();
+
+//Creating and Inserting Cookie Message
+const message = document.createElement('div'); //This creates a DOM element and stores it into the message variable. But it is not in the DOM itself yet
+// Styles
+message.classList.add('cookie-message');
+message.innerHTML =
+  'We used cookies for improved functionality and analytics. <button class="btn btn--close--cookie">Got it!</button>';
+
+header.append(message); //appending ADDs the ELEMENT as the last child of the element (in this case, header)
+
+// Deleting Elements
+document.querySelector('.btn--close--cookie').addEventListener('click', () =>
+  //message.remove()
+  message.parentElement.removeChild(message)
+);
